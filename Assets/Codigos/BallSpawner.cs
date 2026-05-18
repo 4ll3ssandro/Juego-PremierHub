@@ -16,7 +16,7 @@ public class BallSpawner : MonoBehaviour
     private void SpawnBall()
     {
         Vector3 spawnPosition = GetRandomPointInZone(spawnZone);
-        Vector3 targetPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z - 10f);
+        Vector3 targetPosition = GetRandomPointInZone(targetZone);
 
         GameObject newBall = Instantiate(
             ballPrefab,
