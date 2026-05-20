@@ -145,6 +145,9 @@ PlayerSettings:
   bundleVersion: 0.1.0
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: -8742985129782986441, guid: eafbe373c681d2d448d18d0aaaec8bc9, type: 2}
+  - {fileID: 11400000, guid: 664d9c0c698b94f4ba1f128d4c96a0af, type: 2}
+  - {fileID: 2838630057666267917, guid: 4162277ff12e1684aa398620a94aad6e, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -854,8 +857,8 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Juego PremierHub
-  metroPackageVersion: 
+  metroPackageName: JuegoPremierHub
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -863,7 +866,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: Juego PremierHub
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: Juego PremierHub
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
@@ -942,6 +945,6 @@ PlayerSettings:
   hmiLoadingImage: {fileID: 0}
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
-  insecureHttpOption: 0
+  insecureHttpOption: 2
   androidVulkanDenyFilterList: []
   androidVulkanAllowFilterList: []
