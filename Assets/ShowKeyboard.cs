@@ -10,12 +10,25 @@ public class ShowKeyboard : MonoBehaviour
     void Start()
     {
         inputField = GetComponent<TMP_InputField>();
-        inputField.onSelect.AddListener(x => OpenKeyboard());
+
+        if (inputField == null)
+        {
+            Debug.LogWarning($"{nameof(ShowKeyboard)} requires a TMP_InputField on the same GameObject.", this);
+            return;
+        }
+
+        inputField.onSelect.AddListener(_ => OpenKeyboard());
     }
 
     // Update is called once per frame
     public void OpenKeyboard()
     {
+        if (NonNativeKeyboard.Instance == null)
+        {
+            Debug.LogWarning("No NonNativeKeyboard instance was found in the scene.", this);
+            return;
+        }
+
         NonNativeKeyboard.Instance.InputField = inputField;
         NonNativeKeyboard.Instance.PresentKeyboard(inputField.text);
     }
