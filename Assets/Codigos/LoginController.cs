@@ -30,7 +30,8 @@ public class LoginController : MonoBehaviour
         }
 
         NonNativeKeyboard.Instance.InputField = activeInput;
-        NonNativeKeyboard.Instance.PresentKeyboard(activeInput.text);
+        activeInput.text = string.Empty;
+        NonNativeKeyboard.Instance.PresentKeyboard(string.Empty);
     }
 
     public void Login()
