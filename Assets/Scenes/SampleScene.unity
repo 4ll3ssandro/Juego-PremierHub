@@ -736,7 +736,7 @@ Transform:
   m_GameObject: {fileID: 768458064}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12, y: 0.63, z: -1.87}
+  m_LocalPosition: {x: 12, y: 0.6, z: -1.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2003,6 +2003,7 @@ MonoBehaviour:
   ballsRemainingText: {fileID: 537600192}
   gameOverPanel: {fileID: 1455464313}
   finalScoreText: {fileID: 2031934479}
+  rightHandRayObjects: []
 --- !u!4 &1844257960
 Transform:
   m_ObjectHideFlags: 0

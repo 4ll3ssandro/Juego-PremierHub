@@ -12,15 +12,19 @@ public class BallSpawner : MonoBehaviour
     [SerializeField] private int ballsPerRound = 10;
     [SerializeField] private float roundDuration = 60f;
     [SerializeField] private float minSecondsBetweenSpawns = 2f;
+    [SerializeField] private float maxBallLifetime = 8f;
     [SerializeField] private TMP_Text ballsRemainingText;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private TMP_Text finalScoreText;
+    [SerializeField] private GameObject[] rightHandRayObjects;
 
     private int ballsRemaining;
     private int ballsSpawned;
     private int activeBalls;
     private int saves;
     private bool gameOverShown;
+    private GameObject activeBall;
+    private Coroutine activeBallCleanupCoroutine;
 
     private void Start()
     {
@@ -38,6 +42,7 @@ public class BallSpawner : MonoBehaviour
             ballsRemainingText.gameObject.SetActive(true);
         }
 
+        SetRightHandRayActive(false);
         UpdateBallsRemainingText();
         StartCoroutine(SpawnRound());
     }
@@ -56,6 +61,7 @@ public class BallSpawner : MonoBehaviour
                 yield return new WaitForSeconds(waitTime);
             }
 
+            ClearActiveBallAsMiss();
             SpawnBall();
             ballsRemaining--;
             UpdateBallsRemainingText();
@@ -77,6 +83,8 @@ public class BallSpawner : MonoBehaviour
             Quaternion.identity
         );
 
+        activeBall = newBall;
+
         Rigidbody rb = newBall.GetComponent<Rigidbody>();
 
         if (rb != null)
@@ -86,6 +94,13 @@ public class BallSpawner : MonoBehaviour
             Vector3 direction = (targetPosition - spawnPosition).normalized;
             rb.linearVelocity = direction * launchSpeed;
         }
+
+        if (activeBallCleanupCoroutine != null)
+        {
+            StopCoroutine(activeBallCleanupCoroutine);
+        }
+
+        activeBallCleanupCoroutine = StartCoroutine(CleanupActiveBallAfterDelay(newBall, maxBallLifetime));
     }
 
     public bool RegisterSave()
@@ -112,12 +127,47 @@ public class BallSpawner : MonoBehaviour
 
         activeBalls--;
 
+        if (activeBallCleanupCoroutine != null)
+        {
+            StopCoroutine(activeBallCleanupCoroutine);
+            activeBallCleanupCoroutine = null;
+        }
+
+        activeBall = null;
+
         if (!gameOverShown && ballsSpawned >= ballsPerRound && activeBalls <= 0)
         {
             ShowGameOver();
         }
 
         return true;
+    }
+
+    private IEnumerator CleanupActiveBallAfterDelay(GameObject ball, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (ball != null && ball == activeBall)
+        {
+            ClearActiveBallAsMiss();
+        }
+    }
+
+    private void ClearActiveBallAsMiss()
+    {
+        if (activeBall == null)
+        {
+            return;
+        }
+
+        GameObject ballToDestroy = activeBall;
+        RegisterBallResolved(false);
+
+        if (ballToDestroy != null)
+        {
+            ballToDestroy.SetActive(false);
+            Destroy(ballToDestroy);
+        }
     }
 
     private void ShowGameOver()
@@ -138,6 +188,8 @@ public class BallSpawner : MonoBehaviour
         {
             finalScoreText.text = "Atajaste " + saves + " de " + ballsPerRound + " balones";
         }
+
+        SetRightHandRayActive(true);
     }
 
     private Vector3 GetRandomPointInZone(BoxCollider zone)
@@ -293,5 +345,60 @@ public class BallSpawner : MonoBehaviour
 
         gameOverPanel = panel;
         finalScoreText = scoreText;
+    }
+
+    private void SetRightHandRayActive(bool isActive)
+    {
+        EnsureRightHandRayObjects();
+
+        foreach (GameObject rayObject in rightHandRayObjects)
+        {
+            if (rayObject != null)
+            {
+                rayObject.SetActive(isActive);
+            }
+        }
+    }
+
+    private void EnsureRightHandRayObjects()
+    {
+        if (rightHandRayObjects != null && rightHandRayObjects.Length > 0)
+        {
+            return;
+        }
+
+        GameObject rightHand = GameObject.Find("RightHand");
+
+        if (rightHand == null)
+        {
+            return;
+        }
+
+        Transform rayTransform = FindChildRecursive(rightHand.transform, "Ray Interactor");
+
+        if (rayTransform != null)
+        {
+            rightHandRayObjects = new[] { rayTransform.gameObject };
+        }
+    }
+
+    private Transform FindChildRecursive(Transform parent, string childName)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            Transform match = FindChildRecursive(child, childName);
+
+            if (match != null)
+            {
+                return match;
+            }
+        }
+
+        return null;
     }
 }
