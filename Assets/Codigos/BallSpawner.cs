@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BallSpawner : MonoBehaviour
 {
@@ -22,10 +23,17 @@ public class BallSpawner : MonoBehaviour
     private int ballsSpawned;
     private int activeBalls;
     private int saves;
+    private int currentStreak;
+    private int bestStreak;
     private bool gameOverShown;
     private bool savesSubmitted;
     private GameObject activeBall;
     private Coroutine activeBallCleanupCoroutine;
+    private TMP_Text attemptsSummaryText;
+    private TMP_Text totalPointsText;
+    private TMP_Text pointsDeltaText;
+    private TMP_Text bestStreakText;
+    private TMP_Text precisionText;
 
     private void Start()
     {
@@ -124,6 +132,12 @@ public class BallSpawner : MonoBehaviour
         if (wasSaved)
         {
             saves++;
+            currentStreak++;
+            bestStreak = Mathf.Max(bestStreak, currentStreak);
+        }
+        else
+        {
+            currentStreak = 0;
         }
 
         activeBalls--;
@@ -187,9 +201,10 @@ public class BallSpawner : MonoBehaviour
 
         if (finalScoreText != null)
         {
-            finalScoreText.text = "Atajaste " + saves + " de " + ballsPerRound + " balones";
+            finalScoreText.text = saves.ToString();
         }
 
+        UpdateGameOverStats();
         SubmitSavesToProfile();
         SetRightHandRayActive(true);
     }
@@ -215,7 +230,28 @@ public class BallSpawner : MonoBehaviour
             Debug.LogWarning(result != null && !string.IsNullOrWhiteSpace(result.Error)
                 ? $"No se pudieron guardar los puntos por atajadas: {result.Error}"
                 : "No se pudieron guardar los puntos por atajadas.");
+
+            if (totalPointsText != null)
+            {
+                totalPointsText.text = "--";
+            }
+
+            if (pointsDeltaText != null)
+            {
+                pointsDeltaText.text = "Puntos no guardados";
+            }
+
             yield break;
+        }
+
+        if (totalPointsText != null)
+        {
+            totalPointsText.text = FormatNumber(result.Dinero);
+        }
+
+        if (pointsDeltaText != null)
+        {
+            pointsDeltaText.text = "+" + FormatNumber(result.PointsEarned) + " pts esta ronda";
         }
 
         Debug.Log($"Puntos por atajadas guardados. Atajadas: {saves}. Puntos: {result.PointsEarned}. Saldo: {result.Dinero}");
@@ -298,8 +334,9 @@ public class BallSpawner : MonoBehaviour
 
     private void EnsureGameOverPanel()
     {
-        if (gameOverPanel != null && finalScoreText != null)
+        if (gameOverPanel != null)
         {
+            ConfigureGameOverPanel(gameOverPanel);
             return;
         }
 
@@ -314,66 +351,180 @@ public class BallSpawner : MonoBehaviour
         panel.transform.SetParent(canvas.transform, false);
 
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
-        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMin = Vector2.zero;
+        panelRect.anchorMax = Vector2.one;
         panelRect.anchoredPosition = Vector2.zero;
-        panelRect.sizeDelta = new Vector2(650f, 260f);
+        panelRect.sizeDelta = Vector2.zero;
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
 
         Image panelImage = panel.GetComponent<Image>();
-        panelImage.color = new Color(0f, 0f, 0f, 0.82f);
+        panelImage.color = new Color(0.04f, 0.08f, 0.15f, 0.92f);
 
-        GameObject scoreTextObject = new GameObject("FinalScoreText", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-        scoreTextObject.transform.SetParent(panel.transform, false);
+        gameOverPanel = panel;
+        ConfigureGameOverPanel(panel);
+    }
 
-        RectTransform scoreRect = scoreTextObject.GetComponent<RectTransform>();
-        scoreRect.anchorMin = new Vector2(0.5f, 0.5f);
-        scoreRect.anchorMax = new Vector2(0.5f, 0.5f);
-        scoreRect.anchoredPosition = new Vector2(0f, 55f);
-        scoreRect.sizeDelta = new Vector2(580f, 80f);
+    private void ConfigureGameOverPanel(GameObject panel)
+    {
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
 
-        TextMeshProUGUI scoreText = scoreTextObject.GetComponent<TextMeshProUGUI>();
-        scoreText.text = "Atajaste 0 de " + ballsPerRound + " balones";
-        scoreText.fontSize = 42f;
-        scoreText.alignment = TextAlignmentOptions.Center;
-        scoreText.color = Color.white;
+        if (panelRect != null)
+        {
+            panelRect.anchorMin = Vector2.zero;
+            panelRect.anchorMax = Vector2.one;
+            panelRect.anchoredPosition = Vector2.zero;
+            panelRect.sizeDelta = Vector2.zero;
+            panelRect.offsetMin = Vector2.zero;
+            panelRect.offsetMax = Vector2.zero;
+        }
 
-        GameObject buttonObject = new GameObject("RestartButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-        buttonObject.transform.SetParent(panel.transform, false);
+        Image panelImage = panel.GetComponent<Image>();
+
+        if (panelImage != null)
+        {
+            panelImage.color = new Color(0.04f, 0.08f, 0.15f, 0.92f);
+        }
+
+        for (int i = panel.transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(panel.transform.GetChild(i).gameObject);
+        }
+
+        AddDivider(panel.transform, "LeftDivider", new Vector2(-165f, 0f), new Vector2(1.5f, 265f));
+        AddDivider(panel.transform, "RightDivider", new Vector2(170f, 0f), new Vector2(1.5f, 265f));
+
+        AddLabel(panel.transform, "AtajadasLabel", "ATAJADAS", new Vector2(-330f, 126f), new Vector2(230f, 28f), 18f, new Color(1f, 0.12f, 0.45f, 1f));
+        finalScoreText = AddLabel(panel.transform, "FinalScoreText", "0", new Vector2(-330f, 42f), new Vector2(250f, 128f), 116f, Color.white);
+        finalScoreText.fontStyle = FontStyles.Bold;
+
+        attemptsSummaryText = AddLabel(panel.transform, "AttemptsSummaryText", "", new Vector2(-330f, -54f), new Vector2(270f, 34f), 20f, new Color(0.72f, 0.76f, 0.86f, 1f));
+        attemptsSummaryText.characterSpacing = 8f;
+
+        AddLabel(panel.transform, "TotalPointsLabel", "PUNTOS TOTALES", new Vector2(0f, 124f), new Vector2(250f, 28f), 18f, new Color(0.72f, 0.76f, 0.86f, 1f));
+        totalPointsText = AddLabel(panel.transform, "TotalPointsText", "...", new Vector2(0f, 58f), new Vector2(270f, 78f), 64f, Color.white);
+        totalPointsText.fontStyle = FontStyles.Bold;
+        pointsDeltaText = AddLabel(panel.transform, "PointsDeltaText", "Guardando puntos...", new Vector2(0f, 2f), new Vector2(220f, 32f), 19f, new Color(0.26f, 1f, 0.59f, 1f));
+        pointsDeltaText.fontStyle = FontStyles.Bold;
+
+        AddLabel(panel.transform, "BestStreakLabel", "MEJOR RACHA", new Vector2(0f, -50f), new Vector2(230f, 28f), 18f, new Color(0.72f, 0.76f, 0.86f, 1f));
+        bestStreakText = AddLabel(panel.transform, "BestStreakText", "0 SEGUIDAS", new Vector2(0f, -88f), new Vector2(230f, 42f), 29f, Color.white);
+        bestStreakText.fontStyle = FontStyles.Bold;
+
+        AddLabel(panel.transform, "PrecisionLabel", "PRECISION", new Vector2(335f, 124f), new Vector2(220f, 28f), 18f, new Color(0.72f, 0.76f, 0.86f, 1f));
+        precisionText = AddLabel(panel.transform, "PrecisionText", "0%", new Vector2(335f, 72f), new Vector2(220f, 64f), 52f, Color.white);
+        precisionText.fontStyle = FontStyles.Bold;
+
+        AddResultsButton(panel.transform, "RestartButton", "REINICIAR", new Vector2(335f, -62f), RestartCurrentScene);
+        AddResultsButton(panel.transform, "MenuButton", "MENU", new Vector2(335f, -128f), ReturnToMenu);
+        UpdateGameOverStats();
+    }
+
+    private TextMeshProUGUI AddLabel(Transform parent, string name, string text, Vector2 position, Vector2 size, float fontSize, Color color)
+    {
+        GameObject textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(parent, false);
+
+        RectTransform rect = textObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+
+        TextMeshProUGUI label = textObject.GetComponent<TextMeshProUGUI>();
+        label.text = text;
+        label.fontSize = fontSize;
+        label.enableAutoSizing = true;
+        label.fontSizeMin = Mathf.Min(14f, fontSize);
+        label.fontSizeMax = fontSize;
+        label.alignment = TextAlignmentOptions.Center;
+        label.color = color;
+        label.raycastTarget = false;
+
+        return label;
+    }
+
+    private void AddDivider(Transform parent, string name, Vector2 position, Vector2 size)
+    {
+        GameObject divider = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        divider.transform.SetParent(parent, false);
+
+        RectTransform rect = divider.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+
+        Image image = divider.GetComponent<Image>();
+        image.color = new Color(0.46f, 0.53f, 0.66f, 0.25f);
+    }
+
+    private void AddResultsButton(Transform parent, string name, string text, Vector2 position, UnityEngine.Events.UnityAction action)
+    {
+        GameObject buttonObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(parent, false);
 
         RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
         buttonRect.anchorMin = new Vector2(0.5f, 0.5f);
         buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
-        buttonRect.anchoredPosition = new Vector2(0f, -60f);
-        buttonRect.sizeDelta = new Vector2(330f, 70f);
+        buttonRect.anchoredPosition = position;
+        buttonRect.sizeDelta = new Vector2(230f, 56f);
 
         Image buttonImage = buttonObject.GetComponent<Image>();
-        buttonImage.color = new Color(0.2f, 0.52f, 0.95f, 1f);
+        buttonImage.color = name == "MenuButton"
+            ? new Color(0.52f, 0.12f, 0.34f, 1f)
+            : new Color(0.2f, 0.52f, 0.95f, 1f);
 
         Button restartButton = buttonObject.GetComponent<Button>();
-        RestartGame restartGame = FindFirstObjectByType<RestartGame>();
 
-        if (restartGame != null)
+        if (action != null)
         {
-            restartButton.onClick.AddListener(restartGame.RestartScene);
+            restartButton.onClick.AddListener(action);
         }
 
-        GameObject buttonTextObject = new GameObject("Text (TMP)", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-        buttonTextObject.transform.SetParent(buttonObject.transform, false);
+        TextMeshProUGUI buttonText = AddLabel(buttonObject.transform, "Text (TMP)", text, Vector2.zero, buttonRect.sizeDelta, 22f, Color.white);
+        buttonText.fontStyle = FontStyles.Bold;
+        buttonText.characterSpacing = 7f;
+    }
 
-        RectTransform buttonTextRect = buttonTextObject.GetComponent<RectTransform>();
-        buttonTextRect.anchorMin = Vector2.zero;
-        buttonTextRect.anchorMax = Vector2.one;
-        buttonTextRect.offsetMin = Vector2.zero;
-        buttonTextRect.offsetMax = Vector2.zero;
+    private void RestartCurrentScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
-        TextMeshProUGUI buttonText = buttonTextObject.GetComponent<TextMeshProUGUI>();
-        buttonText.text = "Volver a iniciar";
-        buttonText.fontSize = 30f;
-        buttonText.alignment = TextAlignmentOptions.Center;
-        buttonText.color = Color.white;
+    private void ReturnToMenu()
+    {
+        SceneManager.LoadScene("Menu");
+    }
 
-        gameOverPanel = panel;
-        finalScoreText = scoreText;
+    private void UpdateGameOverStats()
+    {
+        int precision = ballsPerRound > 0 ? Mathf.RoundToInt((float)saves / ballsPerRound * 100f) : 0;
+
+        if (finalScoreText != null)
+        {
+            finalScoreText.text = saves.ToString();
+        }
+
+        if (attemptsSummaryText != null)
+        {
+            attemptsSummaryText.text = "DE " + ballsPerRound + " INTENTOS - " + precision + "% PRECISION";
+        }
+
+        if (bestStreakText != null)
+        {
+            bestStreakText.text = bestStreak + " SEGUIDAS";
+        }
+
+        if (precisionText != null)
+        {
+            precisionText.text = precision + "%";
+        }
+    }
+
+    private string FormatNumber(int value)
+    {
+        return value.ToString("N0").Replace(",", " ");
     }
 
     private void SetRightHandRayActive(bool isActive)

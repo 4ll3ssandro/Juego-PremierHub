@@ -2000,6 +2000,7 @@ MonoBehaviour:
   ballsPerRound: 10
   roundDuration: 60
   minSecondsBetweenSpawns: 2
+  maxBallLifetime: 8
   ballsRemainingText: {fileID: 537600192}
   gameOverPanel: {fileID: 1455464313}
   finalScoreText: {fileID: 2031934479}

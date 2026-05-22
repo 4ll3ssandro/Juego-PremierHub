@@ -65,6 +65,7 @@ public static class PremierHubApiClient
         public string Error;
         public int UserId;
         public string SessionCookie;
+        public string DisplayName;
     }
 
     public class SavesResult
@@ -80,6 +81,7 @@ public static class PremierHubApiClient
         public bool Success;
         public string Error;
         public int Dinero;
+        public string DisplayName;
     }
 
     public static IEnumerator Login(string correo, string contrasena, Action<LoginResult> onComplete)
@@ -143,7 +145,8 @@ public static class PremierHubApiClient
         {
             Success = true,
             UserId = response.user != null ? response.user.id_usuario : 0,
-            SessionCookie = cookie
+            SessionCookie = cookie,
+            DisplayName = GetDisplayName(response.user)
         });
     }
 
@@ -279,8 +282,29 @@ public static class PremierHubApiClient
         onComplete?.Invoke(new PointsResult
         {
             Success = true,
-            Dinero = response.user.dinero
+            Dinero = response.user.dinero,
+            DisplayName = GetDisplayName(response.user)
         });
+    }
+
+    private static string GetDisplayName(UserData user)
+    {
+        if (user == null)
+        {
+            return string.Empty;
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.nickname))
+        {
+            return user.nickname;
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.nombre_usuario))
+        {
+            return user.nombre_usuario;
+        }
+
+        return user.correo;
     }
 
     private static IEnumerator EnsureConfigLoaded()

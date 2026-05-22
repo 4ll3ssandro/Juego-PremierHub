@@ -96,7 +96,7 @@ public class LoginController : MonoBehaviour
             yield break;
         }
 
-        PremierHubSession.StartSession(result.UserId, result.SessionCookie);
+        PremierHubSession.StartSession(result.UserId, result.SessionCookie, result.DisplayName);
         SceneManager.LoadScene("Menu");
     }
 
