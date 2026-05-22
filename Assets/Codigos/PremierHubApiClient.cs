@@ -30,6 +30,10 @@ public static class PremierHubApiClient
     public class UserData
     {
         public int id_usuario;
+        public string nombre_usuario;
+        public string nickname;
+        public string correo;
+        public int dinero;
     }
 
     [Serializable]
@@ -47,6 +51,14 @@ public static class PremierHubApiClient
         public int dinero;
     }
 
+    [Serializable]
+    private class CurrentUserResponse
+    {
+        public bool success;
+        public string error;
+        public UserData user;
+    }
+
     public class LoginResult
     {
         public bool Success;
@@ -60,6 +72,13 @@ public static class PremierHubApiClient
         public bool Success;
         public string Error;
         public int PointsEarned;
+        public int Dinero;
+    }
+
+    public class PointsResult
+    {
+        public bool Success;
+        public string Error;
         public int Dinero;
     }
 
@@ -199,6 +218,71 @@ public static class PremierHubApiClient
         });
     }
 
+    public static IEnumerator GetCurrentUserPoints(Action<PointsResult> onComplete)
+    {
+        yield return EnsureConfigLoaded();
+
+        if (!PremierHubSession.IsLoggedIn)
+        {
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = "No hay una sesion activa"
+            });
+            yield break;
+        }
+
+        string url = CombineUrl(baseUrl, "/api/auth/me");
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        request.timeout = RequestTimeoutSeconds;
+
+        if (!string.IsNullOrEmpty(PremierHubSession.SessionCookie))
+        {
+            request.SetRequestHeader("Cookie", PremierHubSession.SessionCookie);
+        }
+
+        Debug.Log($"PremierHub current user request: {url}");
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError ||
+            request.result == UnityWebRequest.Result.DataProcessingError)
+        {
+            Debug.LogWarning($"PremierHub current user connection failed: {request.error}");
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = "No se pudo conectar con el servidor"
+            });
+            yield break;
+        }
+
+        CurrentUserResponse response = TryParseCurrentUserResponse(request.downloadHandler.text);
+        string responseError = response != null && !string.IsNullOrWhiteSpace(response.error)
+            ? response.error
+            : "No se pudieron consultar los puntos";
+
+        if (request.result == UnityWebRequest.Result.ProtocolError ||
+            response == null ||
+            !response.success ||
+            response.user == null)
+        {
+            Debug.LogWarning($"PremierHub current user failed. Code: {request.responseCode}. Body: {request.downloadHandler.text}");
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = responseError
+            });
+            yield break;
+        }
+
+        onComplete?.Invoke(new PointsResult
+        {
+            Success = true,
+            Dinero = response.user.dinero
+        });
+    }
+
     private static IEnumerator EnsureConfigLoaded()
     {
         if (!string.IsNullOrWhiteSpace(baseUrl))
@@ -291,6 +375,23 @@ public static class PremierHubApiClient
         try
         {
             return JsonUtility.FromJson<SavesResponse>(json);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    private static CurrentUserResponse TryParseCurrentUserResponse(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonUtility.FromJson<CurrentUserResponse>(json);
         }
         catch (ArgumentException)
         {
