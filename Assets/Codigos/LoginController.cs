@@ -97,7 +97,7 @@ public class LoginController : MonoBehaviour
         }
 
         PremierHubSession.StartSession(result.UserId, result.SessionCookie);
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("Menu");
     }
 
     private void ShowError(string message)

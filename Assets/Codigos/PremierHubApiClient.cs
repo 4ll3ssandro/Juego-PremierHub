@@ -30,6 +30,33 @@ public static class PremierHubApiClient
     public class UserData
     {
         public int id_usuario;
+        public string nombre_usuario;
+        public string nickname;
+        public string correo;
+        public int dinero;
+    }
+
+    [Serializable]
+    private class SavesRequest
+    {
+        public int saves;
+    }
+
+    [Serializable]
+    private class SavesResponse
+    {
+        public bool success;
+        public string error;
+        public int pointsEarned;
+        public int dinero;
+    }
+
+    [Serializable]
+    private class CurrentUserResponse
+    {
+        public bool success;
+        public string error;
+        public UserData user;
     }
 
     public class LoginResult
@@ -38,6 +65,21 @@ public static class PremierHubApiClient
         public string Error;
         public int UserId;
         public string SessionCookie;
+    }
+
+    public class SavesResult
+    {
+        public bool Success;
+        public string Error;
+        public int PointsEarned;
+        public int Dinero;
+    }
+
+    public class PointsResult
+    {
+        public bool Success;
+        public string Error;
+        public int Dinero;
     }
 
     public static IEnumerator Login(string correo, string contrasena, Action<LoginResult> onComplete)
@@ -102,6 +144,142 @@ public static class PremierHubApiClient
             Success = true,
             UserId = response.user != null ? response.user.id_usuario : 0,
             SessionCookie = cookie
+        });
+    }
+
+    public static IEnumerator SubmitSaves(int saves, Action<SavesResult> onComplete)
+    {
+        yield return EnsureConfigLoaded();
+
+        if (!PremierHubSession.IsLoggedIn)
+        {
+            onComplete?.Invoke(new SavesResult
+            {
+                Success = false,
+                Error = "No hay una sesion activa"
+            });
+            yield break;
+        }
+
+        string url = CombineUrl(baseUrl, "/api/auth/profile/saves");
+        string payload = JsonUtility.ToJson(new SavesRequest
+        {
+            saves = saves
+        });
+
+        using UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST);
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(payload);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.timeout = RequestTimeoutSeconds;
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        if (!string.IsNullOrEmpty(PremierHubSession.SessionCookie))
+        {
+            request.SetRequestHeader("Cookie", PremierHubSession.SessionCookie);
+        }
+
+        Debug.Log($"PremierHub saves request: {url}. Saves: {saves}");
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError ||
+            request.result == UnityWebRequest.Result.DataProcessingError)
+        {
+            Debug.LogWarning($"PremierHub saves connection failed: {request.error}");
+            onComplete?.Invoke(new SavesResult
+            {
+                Success = false,
+                Error = "No se pudo conectar con el servidor"
+            });
+            yield break;
+        }
+
+        SavesResponse response = TryParseSavesResponse(request.downloadHandler.text);
+        string responseError = response != null && !string.IsNullOrWhiteSpace(response.error)
+            ? response.error
+            : "No se pudieron guardar los puntos";
+
+        if (request.result == UnityWebRequest.Result.ProtocolError || response == null || !response.success)
+        {
+            Debug.LogWarning($"PremierHub saves failed. Code: {request.responseCode}. Body: {request.downloadHandler.text}");
+            onComplete?.Invoke(new SavesResult
+            {
+                Success = false,
+                Error = responseError
+            });
+            yield break;
+        }
+
+        onComplete?.Invoke(new SavesResult
+        {
+            Success = true,
+            PointsEarned = response.pointsEarned,
+            Dinero = response.dinero
+        });
+    }
+
+    public static IEnumerator GetCurrentUserPoints(Action<PointsResult> onComplete)
+    {
+        yield return EnsureConfigLoaded();
+
+        if (!PremierHubSession.IsLoggedIn)
+        {
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = "No hay una sesion activa"
+            });
+            yield break;
+        }
+
+        string url = CombineUrl(baseUrl, "/api/auth/me");
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        request.timeout = RequestTimeoutSeconds;
+
+        if (!string.IsNullOrEmpty(PremierHubSession.SessionCookie))
+        {
+            request.SetRequestHeader("Cookie", PremierHubSession.SessionCookie);
+        }
+
+        Debug.Log($"PremierHub current user request: {url}");
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError ||
+            request.result == UnityWebRequest.Result.DataProcessingError)
+        {
+            Debug.LogWarning($"PremierHub current user connection failed: {request.error}");
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = "No se pudo conectar con el servidor"
+            });
+            yield break;
+        }
+
+        CurrentUserResponse response = TryParseCurrentUserResponse(request.downloadHandler.text);
+        string responseError = response != null && !string.IsNullOrWhiteSpace(response.error)
+            ? response.error
+            : "No se pudieron consultar los puntos";
+
+        if (request.result == UnityWebRequest.Result.ProtocolError ||
+            response == null ||
+            !response.success ||
+            response.user == null)
+        {
+            Debug.LogWarning($"PremierHub current user failed. Code: {request.responseCode}. Body: {request.downloadHandler.text}");
+            onComplete?.Invoke(new PointsResult
+            {
+                Success = false,
+                Error = responseError
+            });
+            yield break;
+        }
+
+        onComplete?.Invoke(new PointsResult
+        {
+            Success = true,
+            Dinero = response.user.dinero
         });
     }
 
@@ -180,6 +358,40 @@ public static class PremierHubApiClient
         try
         {
             return JsonUtility.FromJson<LoginResponse>(json);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    private static SavesResponse TryParseSavesResponse(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonUtility.FromJson<SavesResponse>(json);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+    }
+
+    private static CurrentUserResponse TryParseCurrentUserResponse(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonUtility.FromJson<CurrentUserResponse>(json);
         }
         catch (ArgumentException)
         {
