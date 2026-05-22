@@ -158,7 +158,7 @@ public class MenuGameSelection : MonoBehaviour
         AddLabel(panel, "GoalKeeperMode", "MODO 01", new Vector2(-535f, 116f), new Vector2(78f, 18f), 11f, new Color(1f, 0.08f, 0.36f, 1f), FontStyles.Bold, TextAlignmentOptions.Left, 5f);
         AddPanel(panel, "GoalKeeperLine", new Vector2(-295f, 116f), new Vector2(430f, 1.5f), new Color(1f, 0.08f, 0.36f, 0.62f), false, false);
         AddLabel(panel, "GoalKeeperTitle", "Modo Portero", new Vector2(-375f, 55f), new Vector2(420f, 64f), 42f, Color.white, FontStyles.Bold, TextAlignmentOptions.Left, 0f);
-        AddLabel(panel, "GoalKeeperDescription", "Deten los penales en una serie de 10 tiros.", new Vector2(-360f, 7f), new Vector2(450f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.72f), FontStyles.Normal, TextAlignmentOptions.Left, 0f);
+        AddLabel(panel, "GoalKeeperDescription", "Detén los penales en una serie de 10 tiros.", new Vector2(-360f, 7f), new Vector2(450f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.72f), FontStyles.Normal, TextAlignmentOptions.Left, 0f);
     }
 
     private void BuildRefereeSide(Transform panel)
@@ -167,11 +167,11 @@ public class MenuGameSelection : MonoBehaviour
         AddPanel(panel, "RefereeLine", new Vector2(318f, 116f), new Vector2(430f, 1.5f), new Color(0.78f, 0.82f, 0.9f, 0.22f), false, false);
         AddLabel(panel, "RefereeLockedTop", "EN OBRA", new Vector2(526f, 116f), new Vector2(86f, 18f), 10f, new Color(0.78f, 0.82f, 0.9f, 0.64f), FontStyles.Bold, TextAlignmentOptions.Right, 4f);
 
-        AddLabel(panel, "RefereeTitle", "Modo Arbitro", new Vector2(238f, 55f), new Vector2(420f, 64f), 42f, new Color(0.78f, 0.82f, 0.9f, 0.78f), FontStyles.Bold, TextAlignmentOptions.Left, 0f);
-        AddLabel(panel, "RefereeDescription", "Toma decisiones bajo presion, con VAR y tarjetas.", new Vector2(258f, 7f), new Vector2(470f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.5f), FontStyles.Normal, TextAlignmentOptions.Left, 0f);
+        AddLabel(panel, "RefereeTitle", "Modo Árbitro", new Vector2(238f, 55f), new Vector2(420f, 64f), 42f, new Color(0.78f, 0.82f, 0.9f, 0.78f), FontStyles.Bold, TextAlignmentOptions.Left, 0f);
+        AddLabel(panel, "RefereeDescription", "Toma decisiones bajo presión, con VAR y tarjetas.", new Vector2(258f, 7f), new Vector2(470f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.5f), FontStyles.Normal, TextAlignmentOptions.Left, 0f);
 
         GameObject disabledButton = AddPanel(panel, "RefereeDisabledButton", new Vector2(158f, -122f), new Vector2(225f, 52f), new Color(0f, 0f, 0f, 0.32f), true, false);
-        AddLabel(disabledButton.transform, "RefereeButtonText", "PROXIMAMENTE", Vector2.zero, new Vector2(188f, 22f), 12f, new Color(0.78f, 0.82f, 0.9f, 0.48f), FontStyles.Bold, TextAlignmentOptions.Center, 5f);
+        AddLabel(disabledButton.transform, "RefereeButtonText", "PRÓXIMAMENTE", Vector2.zero, new Vector2(188f, 22f), 12f, new Color(0.78f, 0.82f, 0.9f, 0.48f), FontStyles.Bold, TextAlignmentOptions.Center, 5f);
     }
 
     private void SetPointsText(string text)

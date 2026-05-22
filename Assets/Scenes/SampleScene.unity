@@ -470,7 +470,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Balones restantes: 5'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0f5347b1dfdca684d8b15382882d25bb, type: 2}
   m_sharedMaterial: {fileID: 6852228881780734044, guid: 0f5347b1dfdca684d8b15382882d25bb, type: 2}
@@ -1997,8 +1997,8 @@ MonoBehaviour:
   spawnZone: {fileID: 768458066}
   targetZone: {fileID: 1189094848}
   launchSpeed: 10
-  ballsPerRound: 10
-  roundDuration: 60
+  ballsPerRound: 5
+  roundDuration: 20
   minSecondsBetweenSpawns: 2
   maxBallLifetime: 8
   ballsRemainingText: {fileID: 537600192}
@@ -2063,7 +2063,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0f5347b1dfdca684d8b15382882d25bb, type: 2}
   m_sharedMaterial: {fileID: 6852228881780734044, guid: 0f5347b1dfdca684d8b15382882d25bb, type: 2}

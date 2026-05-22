@@ -411,12 +411,12 @@ public class BallSpawner : MonoBehaviour
         bestStreakText = AddLabel(panel.transform, "BestStreakText", "0 SEGUIDAS", new Vector2(0f, -88f), new Vector2(230f, 42f), 29f, Color.white);
         bestStreakText.fontStyle = FontStyles.Bold;
 
-        AddLabel(panel.transform, "PrecisionLabel", "PRECISION", new Vector2(335f, 124f), new Vector2(220f, 28f), 18f, new Color(0.72f, 0.76f, 0.86f, 1f));
+        AddLabel(panel.transform, "PrecisionLabel", "PRECISIÓN", new Vector2(335f, 124f), new Vector2(220f, 28f), 18f, new Color(0.72f, 0.76f, 0.86f, 1f));
         precisionText = AddLabel(panel.transform, "PrecisionText", "0%", new Vector2(335f, 72f), new Vector2(220f, 64f), 52f, Color.white);
         precisionText.fontStyle = FontStyles.Bold;
 
         AddResultsButton(panel.transform, "RestartButton", "REINICIAR", new Vector2(335f, -62f), RestartCurrentScene);
-        AddResultsButton(panel.transform, "MenuButton", "MENU", new Vector2(335f, -128f), ReturnToMenu);
+        AddResultsButton(panel.transform, "MenuButton", "MENÚ", new Vector2(335f, -128f), ReturnToMenu);
         UpdateGameOverStats();
     }
 
@@ -508,7 +508,7 @@ public class BallSpawner : MonoBehaviour
 
         if (attemptsSummaryText != null)
         {
-            attemptsSummaryText.text = "DE " + ballsPerRound + " INTENTOS - " + precision + "% PRECISION";
+            attemptsSummaryText.text = "DE " + ballsPerRound + " INTENTOS - " + precision + "% PRECISIÓN";
         }
 
         if (bestStreakText != null)
