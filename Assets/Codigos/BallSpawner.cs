@@ -23,6 +23,7 @@ public class BallSpawner : MonoBehaviour
     private int activeBalls;
     private int saves;
     private bool gameOverShown;
+    private bool savesSubmitted;
     private GameObject activeBall;
     private Coroutine activeBallCleanupCoroutine;
 
@@ -189,7 +190,35 @@ public class BallSpawner : MonoBehaviour
             finalScoreText.text = "Atajaste " + saves + " de " + ballsPerRound + " balones";
         }
 
+        SubmitSavesToProfile();
         SetRightHandRayActive(true);
+    }
+
+    private void SubmitSavesToProfile()
+    {
+        if (savesSubmitted)
+        {
+            return;
+        }
+
+        savesSubmitted = true;
+        StartCoroutine(SubmitSavesRoutine());
+    }
+
+    private IEnumerator SubmitSavesRoutine()
+    {
+        PremierHubApiClient.SavesResult result = null;
+        yield return PremierHubApiClient.SubmitSaves(saves, savesResult => result = savesResult);
+
+        if (result == null || !result.Success)
+        {
+            Debug.LogWarning(result != null && !string.IsNullOrWhiteSpace(result.Error)
+                ? $"No se pudieron guardar los puntos por atajadas: {result.Error}"
+                : "No se pudieron guardar los puntos por atajadas.");
+            yield break;
+        }
+
+        Debug.Log($"Puntos por atajadas guardados. Atajadas: {saves}. Puntos: {result.PointsEarned}. Saldo: {result.Dinero}");
     }
 
     private Vector3 GetRandomPointInZone(BoxCollider zone)
