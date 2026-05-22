@@ -1997,9 +1997,10 @@ MonoBehaviour:
   spawnZone: {fileID: 768458066}
   targetZone: {fileID: 1189094848}
   launchSpeed: 10
-  ballsPerRound: 10
-  roundDuration: 60
+  ballsPerRound: 1
+  roundDuration: 5
   minSecondsBetweenSpawns: 2
+  maxBallLifetime: 8
   ballsRemainingText: {fileID: 537600192}
   gameOverPanel: {fileID: 1455464313}
   finalScoreText: {fileID: 2031934479}
