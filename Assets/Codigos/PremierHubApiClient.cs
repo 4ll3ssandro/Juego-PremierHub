@@ -159,7 +159,7 @@ public static class PremierHubApiClient
             onComplete?.Invoke(new SavesResult
             {
                 Success = false,
-                Error = "No hay una sesion activa"
+                Error = "No hay una sesión activa"
             });
             yield break;
         }
@@ -230,7 +230,7 @@ public static class PremierHubApiClient
             onComplete?.Invoke(new PointsResult
             {
                 Success = false,
-                Error = "No hay una sesion activa"
+                Error = "No hay una sesión activa"
             });
             yield break;
         }

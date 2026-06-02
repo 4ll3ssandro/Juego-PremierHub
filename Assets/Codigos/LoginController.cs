@@ -64,13 +64,13 @@ public class LoginController : MonoBehaviour
 
         if (usernameEmpty || passwordEmpty)
         {
-            ShowError("Ingresa correo y contrasena");
+            ShowError("Ingresa correo y contraseña");
             return;
         }
 
         if (!EmailRegex.IsMatch(correo))
         {
-            ShowError("Ingresa un correo valido");
+            ShowError("Ingresa un correo válido");
             return;
         }
 
