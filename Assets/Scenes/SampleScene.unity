@@ -2036,7 +2036,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 7151136187677725049, guid: 917f17d0cc68e1a4f8b9603cf706971e, type: 3}
   spawnZone: {fileID: 768458066}
   targetZone: {fileID: 1189094848}
-  launchSpeed: 15
+  minLaunchSpeed: 10
+  maxLaunchSpeed: 20
   ballsPerRound: 5
   roundDuration: 20
   minSecondsBetweenSpawns: 2
