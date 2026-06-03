@@ -85,6 +85,7 @@ public class BallSpawner : MonoBehaviour
 
         Vector3 spawnPosition = GetRandomPointInZone(spawnZone);
         Vector3 targetPosition = GetRandomPointInZone(targetZone);
+        targetPosition.y = spawnPosition.y;
 
         GameObject newBall = Instantiate(
             ballPrefab,
@@ -99,6 +100,9 @@ public class BallSpawner : MonoBehaviour
         if (rb != null)
         {
             rb.useGravity = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.constraints |= RigidbodyConstraints.FreezePositionY;
 
             Vector3 direction = (targetPosition - spawnPosition).normalized;
             rb.linearVelocity = direction * launchSpeed;
