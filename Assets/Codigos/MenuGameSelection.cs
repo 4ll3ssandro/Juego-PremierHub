@@ -106,11 +106,9 @@ public class MenuGameSelection : MonoBehaviour
         background.transform.SetAsFirstSibling();
 
         AddPanel(panel, "SoftBottomGlow", new Vector2(0f, -224f), new Vector2(1250f, 76f), new Color(0f, 0f, 0f, 0.18f), false, false);
-        AddPanel(panel, "CenterDivider", new Vector2(0f, -18f), new Vector2(2f, 315f), new Color(0.62f, 0.68f, 0.78f, 0.26f), false, false);
 
         BuildHeader(panel);
         BuildGoalKeeperSide(panel);
-        BuildRefereeSide(panel);
         ConfigurePlayButton();
     }
 
@@ -155,10 +153,10 @@ public class MenuGameSelection : MonoBehaviour
 
     private void BuildGoalKeeperSide(Transform panel)
     {
-        AddLabel(panel, "GoalKeeperMode", "MODO 01", new Vector2(-535f, 116f), new Vector2(78f, 18f), 11f, new Color(1f, 0.08f, 0.36f, 1f), FontStyles.Bold, TextAlignmentOptions.Left, 5f);
-        AddPanel(panel, "GoalKeeperLine", new Vector2(-295f, 116f), new Vector2(430f, 1.5f), new Color(1f, 0.08f, 0.36f, 0.62f), false, false);
-        AddLabel(panel, "GoalKeeperTitle", "Modo Portero", new Vector2(-375f, 55f), new Vector2(420f, 64f), 42f, Color.white, FontStyles.Bold, TextAlignmentOptions.Left, 0f);
-        AddLabel(panel, "GoalKeeperDescription", "Detén los penales en una serie de 10 tiros.", new Vector2(-360f, 7f), new Vector2(450f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.72f), FontStyles.Normal, TextAlignmentOptions.Left, 0f);
+        AddLabel(panel, "GoalKeeperMode", "MODO 01", new Vector2(0f, 116f), new Vector2(78f, 18f), 11f, new Color(1f, 0.08f, 0.36f, 1f), FontStyles.Bold, TextAlignmentOptions.Center, 5f);
+        AddPanel(panel, "GoalKeeperLine", new Vector2(0f, 98f), new Vector2(430f, 1.5f), new Color(1f, 0.08f, 0.36f, 0.62f), false, false);
+        AddLabel(panel, "GoalKeeperTitle", "Modo Portero", new Vector2(0f, 45f), new Vector2(420f, 64f), 42f, Color.white, FontStyles.Bold, TextAlignmentOptions.Center, 0f);
+        AddLabel(panel, "GoalKeeperDescription", "Detén los penales en una serie de 10 tiros.", new Vector2(0f, -3f), new Vector2(450f, 24f), 16f, new Color(0.78f, 0.82f, 0.9f, 0.72f), FontStyles.Normal, TextAlignmentOptions.Center, 0f);
     }
 
     private void BuildRefereeSide(Transform panel)
@@ -219,7 +217,7 @@ public class MenuGameSelection : MonoBehaviour
         RectTransform rect = GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = new Vector2(-446f, -122f);
+        rect.anchoredPosition = new Vector2(0f, -122f);
         rect.sizeDelta = new Vector2(210f, 52f);
 
         Image image = GetComponent<Image>();

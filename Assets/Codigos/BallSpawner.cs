@@ -9,7 +9,8 @@ public class BallSpawner : MonoBehaviour
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private BoxCollider spawnZone;
     [SerializeField] private BoxCollider targetZone;
-    [SerializeField] private float launchSpeed = 10f;
+    [SerializeField] private float minLaunchSpeed = 10f;
+    [SerializeField] private float maxLaunchSpeed = 20f;
     [SerializeField] private int ballsPerRound = 10;
     [SerializeField] private float roundDuration = 60f;
     [SerializeField] private float minSecondsBetweenSpawns = 2f;
@@ -85,6 +86,7 @@ public class BallSpawner : MonoBehaviour
 
         Vector3 spawnPosition = GetRandomPointInZone(spawnZone);
         Vector3 targetPosition = GetRandomPointInZone(targetZone);
+        targetPosition.y = spawnPosition.y;
 
         GameObject newBall = Instantiate(
             ballPrefab,
@@ -99,8 +101,12 @@ public class BallSpawner : MonoBehaviour
         if (rb != null)
         {
             rb.useGravity = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.constraints |= RigidbodyConstraints.FreezePositionY;
 
             Vector3 direction = (targetPosition - spawnPosition).normalized;
+            float launchSpeed = Random.Range(minLaunchSpeed, maxLaunchSpeed);
             rb.linearVelocity = direction * launchSpeed;
         }
 
