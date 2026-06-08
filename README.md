@@ -55,13 +55,7 @@ El servidor levanta en `http://localhost:4000`.
 
 ### 3. Configurar la URL del backend en Unity
 
-Crea el archivo `Assets/StreamingAssets/.env` con el siguiente contenido:
-
-```
-PREMIERHUB_API_URL=http://localhost:4000
-```
-
-> Para builds standalone en el headset usa la URL pública del backend en lugar de `localhost`.
+Consulta el archivo **`06_Configuracion_de_seguridad.pdf`** para conocer las variables de entorno requeridas y cómo configurarlas correctamente.
 
 ### 4. Abrir el proyecto en Unity
 
@@ -100,11 +94,7 @@ adb install -r Meta.apk
 
 ### Actualizar la URL del backend en el build
 
-Para que el headset pueda conectarse al backend, el archivo `.env` dentro de `StreamingAssets` debe contener la URL pública antes de hacer el build:
-
-```
-PREMIERHUB_API_URL=https://tu-backend.ejemplo.com
-```
+Antes de generar el `.apk`, configura las variables de entorno según lo indicado en **`06_Configuracion_de_seguridad.pdf`**.
 
 ---
 
@@ -133,13 +123,9 @@ La aplicación fue publicada en [Meta Horizon Store para desarrolladores](https:
 
 ---
 
-## Variables de entorno
+## Configuración de seguridad y variables de entorno
 
-| Variable | Descripción | Default |
-|---|---|---|
-| `PREMIERHUB_API_URL` | URL base del backend | `http://localhost:4000` |
-
-El archivo `.env` debe ubicarse en `Assets/StreamingAssets/.env`.
+Consulta el documento **`06_Configuracion_de_seguridad.pdf`** para conocer todas las variables de entorno, credenciales y parámetros de seguridad necesarios para ejecutar y desplegar la aplicación.
 
 ---
 
